@@ -5,7 +5,827 @@
   <meta http-equiv="Content-Style-Type" content="text/css">
   <title></title>
   <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.3">
+  <meta name="CocoaVersion" content="2685.3<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プロモーション管理ダッシュボード</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --font-sans: system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f4f0;
+    --color-background-tertiary: #eeece6;
+    --color-background-info: #e6f1fb;
+    --color-background-success: #eaf3de;
+    --color-background-warning: #faeeda;
+    --color-background-danger: #fcebeb;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-text-info: #185fa5;
+    --color-text-success: #3b6d11;
+    --color-text-warning: #854f0b;
+    --color-text-danger: #a32d2d;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.2);
+    --color-border-primary: rgba(0,0,0,0.35);
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background-primary: #1c1c1a;
+      --color-background-secondary: #252522;
+      --color-background-tertiary: #2e2e2b;
+      --color-background-info: #042c53;
+      --color-background-success: #173404;
+      --color-background-warning: #412402;
+      --color-background-danger: #501313;
+      --color-text-primary: #e8e6de;
+      --color-text-secondary: #b4b2a9;
+      --color-text-tertiary: #888780;
+      --color-text-info: #85b7eb;
+      --color-text-success: #97c459;
+      --color-text-warning: #ef9f27;
+      --color-text-danger: #f09595;
+      --color-border-tertiary: rgba(255,255,255,0.1);
+      --color-border-secondary: rgba(255,255,255,0.18);
+      --color-border-primary: rgba(255,255,255,0.3);
+    }
+  }
+
+  body { font-family: var(--font-sans); background: var(--color-background-tertiary); color: var(--color-text-primary); min-height: 100vh; padding: 2rem; }
+  .dash { max-width: 1140px; margin: 0 auto; }
+
+  /* ── Setup banner ── */
+  .setup-banner { background: var(--color-background-info); border: 1px solid var(--color-text-info); border-radius: var(--border-radius-lg); padding: 20px 24px; margin-bottom: 1.5rem; }
+  .setup-banner h2 { font-size: 15px; font-weight: 500; color: var(--color-text-info); margin-bottom: 12px; }
+  .setup-banner ol { padding-left: 1.2rem; color: var(--color-text-secondary); font-size: 13px; line-height: 2; }
+  .setup-banner ol li code { font-family: monospace; font-size: 12px; background: rgba(0,0,0,.07); padding: 1px 5px; border-radius: 4px; }
+  .setup-input-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .setup-input-row input { flex: 1; min-width: 200px; padding: 8px 10px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit; }
+  .setup-input-row input:focus { outline: 2px solid var(--color-text-info); outline-offset: 1px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .status-row { display: flex; align-items: center; font-size: 12px; color: var(--color-text-secondary); margin-top: 10px; }
+  .dot-ok      { background: #3b6d11; }
+  .dot-err     { background: #a32d2d; }
+  .dot-pending { background: #888780; }
+  .dot-loading { background: #185fa5; animation: pulse .8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ── Header ── */
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; }
+  .header h1 { font-size: 20px; font-weight: 500; }
+  .header-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .sync-time { font-size: 11px; color: var(--color-text-tertiary); }
+
+  /* ── Buttons ── */
+  .btn { font-size: 13px; padding: 7px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; transition: background .15s, color .15s; }
+  .btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .btn:disabled { opacity: .45; cursor: default; pointer-events: none; }
+  .btn-primary { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+  .btn-primary:hover { opacity: .85; color: var(--color-background-primary); }
+  .btn-import { color: var(--color-text-info); border-color: var(--color-text-info); }
+  .btn-import:hover { background: var(--color-background-info); color: var(--color-text-info); }
+  .btn-danger { color: var(--color-text-danger); }
+  .btn-danger:hover { background: var(--color-background-danger); }
+
+  /* ── Summary ── */
+  .summary-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  @media (max-width: 600px) { .summary-row { grid-template-columns: 1fr 1fr; } }
+  .stat { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+  .stat-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-value { font-size: 22px; font-weight: 500; }
+
+  /* ── Filters ── */
+  .filter-section { margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .filter-label { font-size: 12px; color: var(--color-text-tertiary); min-width: 52px; }
+  .chip { font-size: 12px; padding: 4px 12px; border-radius: 99px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; transition: all .15s; font-family: inherit; white-space: nowrap; }
+  .chip:hover { background: var(--color-background-secondary); }
+  .chip.active         { background: var(--color-text-primary);         color: var(--color-background-primary); border-color: var(--color-text-primary); }
+  .chip.active-warn    { background: var(--color-background-warning);   color: var(--color-text-warning);   border-color: var(--color-text-warning); }
+  .chip.active-danger  { background: var(--color-background-danger);    color: var(--color-text-danger);    border-color: var(--color-text-danger); }
+  .chip.active-success { background: var(--color-background-success);   color: var(--color-text-success);   border-color: var(--color-text-success); }
+  .chip.active-info    { background: var(--color-background-secondary); color: var(--color-text-secondary); border-color: var(--color-border-primary); }
+
+  /* ── Cards ── */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .empty { text-align: center; padding: 3rem; color: var(--color-text-tertiary); font-size: 14px; grid-column: 1/-1; }
+  .skeleton { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); height: 200px; animation: pulse .9s ease-in-out infinite; }
+
+  .promo-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; transition: border-color .15s; }
+  .promo-card:hover { border-color: var(--color-border-primary); }
+  .promo-card.card-ending  { border-left: 3px solid var(--color-text-warning); }
+  .promo-card.card-expired { border-left: 3px solid var(--color-text-danger); }
+
+  .card-top { padding: 13px 15px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-name { font-size: 14px; font-weight: 500; line-height: 1.4; }
+  .badges { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
+  .badge { font-size: 10px; padding: 2px 7px; border-radius: 99px; white-space: nowrap; }
+  .badge-online  { background: var(--color-background-info);    color: var(--color-text-info); }
+  .badge-offline { background: var(--color-background-success); color: var(--color-text-success); }
+  .badge-both    { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .badge-warn    { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .badge-danger  { background: var(--color-background-danger);  color: var(--color-text-danger); }
+  .badge-muted   { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+
+  .card-body { padding: 11px 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 7px 12px; }
+  .field-label { font-size: 10px; color: var(--color-text-tertiary); margin-bottom: 2px; letter-spacing: .02em; }
+  .field-value { font-size: 13px; color: var(--color-text-primary); line-height: 1.4; }
+  .field-wide { grid-column: 1 / -1; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 4px; background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .cost { font-size: 13px; font-weight: 500; }
+  .visual-link { font-size: 12px; color: var(--color-text-info); text-decoration: none; }
+  .visual-link:hover { text-decoration: underline; }
+
+  .card-footer { padding: 9px 15px; border-top: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .dl-label { font-size: 12px; color: var(--color-text-tertiary); }
+  .dl-val   { font-size: 12px; color: var(--color-text-primary);  font-weight: 500; }
+  .dl-warn  { font-size: 12px; color: var(--color-text-warning);  font-weight: 500; }
+  .dl-over  { font-size: 12px; color: var(--color-text-danger);   font-weight: 500; }
+
+  /* ── Toast ── */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--color-text-primary); color: var(--color-background-primary); font-size: 13px; padding: 10px 20px; border-radius: var(--border-radius-md); opacity: 0; transition: opacity .2s, transform .2s; pointer-events: none; z-index: 300; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Modal ── */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 24px; width: 500px; max-width: 100%; max-height: 92vh; overflow-y: auto; }
+  .modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 18px; }
+  .form-row { margin-bottom: 13px; }
+  .form-row label { display: block; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .form-row input, .form-row select { width: 100%; padding: 8px 10px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); font-family: inherit; }
+  .form-row input:focus, .form-row select:focus { outline: 2px solid var(--color-text-info); outline-offset: 1px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="dash">
+
+  <!-- ── セットアップバナー ── -->
+  <div class="setup-banner" id="setup-banner">
+    <h2>⚙️ Google スプレッドシート連携の設定</h2>
+    <ol>
+      <li>Googleスプレッドシートを新規作成し、メニュー「拡張機能」→「Apps Script」を開く</li>
+      <li>配布された <code>gas_script.js</code> の内容をすべてコピーして貼り付け、保存する</li>
+      <li>「デプロイ」→「新しいデプロイ」→ 種類: <code>ウェブアプリ</code></li>
+      <li>実行ユーザー: <code>自分</code>、アクセス: <code>全員</code> に設定して「デプロイ」</li>
+      <li>発行されたURLを下に貼り付けて「接続する」をクリック</li>
+    </ol>
+    <div class="setup-input-row">
+      <input type="url" id="gas-url-input" placeholder="https://script.google.com/macros/s/xxxx/exec">
+      <button class="btn btn-primary" onclick="connectGAS()">接続する</button>
+      <button class="btn" onclick="dismissSetup()">後で設定する（ローカル保存で使用）</button>
+    </div>
+    <div class="status-row" id="conn-status">
+      <span class="status-dot dot-pending" id="conn-dot"></span>
+      <span id="conn-msg">未接続 — ローカルストレージで動作中</span>
+    </div>
+  </div>
+
+  <div class="header">
+    <h1>プロモーション管理</h1>
+    <div class="header-right">
+      <span class="sync-time" id="sync-time"></span>
+      <button class="btn" id="btn-refresh" onclick="loadFromSheets()" title="スプレッドシートから再読み込み">↺ 同期</button>
+      <button class="btn" onclick="exportCSV()">↓ CSV書き出し</button>
+      <label class="btn btn-import" style="cursor:pointer">
+        ↑ CSV読み込み
+        <input type="file" id="csv-input" accept=".csv,text/csv" style="display:none" onchange="importCSV(this)">
+      </label>
+      <button class="btn btn-primary" onclick="openModal()">＋ 新規追加</button>
+    </div>
+  </div>
+
+  <div class="summary-row">
+    <div class="stat"><div class="stat-label" id="l-total">総件数</div><div class="stat-value" id="s-total">0</div></div>
+    <div class="stat"><div class="stat-label" id="l-active">実施中</div><div class="stat-value" id="s-active">0</div></div>
+    <div class="stat"><div class="stat-label" id="l-cost">合計費用</div><div class="stat-value" id="s-cost">¥0</div></div>
+    <div class="stat"><div class="stat-label" id="l-soon">出稿期限間近（7日以内）</div><div class="stat-value" id="s-soon">0</div></div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-row">
+      <span class="filter-label">チャネル</span>
+      <button class="chip active"  data-group="channel" data-val="all"     onclick="setFilter('channel','all',this)">すべて</button>
+      <button class="chip"         data-group="channel" data-val="online"  onclick="setFilter('channel','online',this)">オンライン</button>
+      <button class="chip"         data-group="channel" data-val="offline" onclick="setFilter('channel','offline',this)">オフライン</button>
+      <button class="chip"         data-group="channel" data-val="both"    onclick="setFilter('channel','both',this)">オンライン＋オフライン</button>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">掲載期間</span>
+      <button class="chip active"  data-group="period" data-val="all"      onclick="setFilter('period','all',this)">すべて</button>
+      <button class="chip"         data-group="period" data-val="active"   onclick="setFilter('period','active',this)">実施中</button>
+      <button class="chip"         data-group="period" data-val="ending"   onclick="setFilter('period','ending',this)">期間間近（14日以内）</button>
+      <button class="chip"         data-group="period" data-val="expired"  onclick="setFilter('period','expired',this)">期間超過</button>
+      <button class="chip"         data-group="period" data-val="upcoming" onclick="setFilter('period','upcoming',this)">掲載前</button>
+    </div>
+  </div>
+
+  <div class="cards-grid" id="cards-grid"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal-bg" onclick="bgClick(event)">
+  <div class="modal">
+    <h2 id="modal-title">プロモーションを追加</h2>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>プロモーション名</label>
+        <input id="f-name" type="text" placeholder="例：夏のSNSキャンペーン">
+      </div>
+      <div class="form-row">
+        <label>代理店</label>
+        <input id="f-agency" type="text" placeholder="例：〇〇エージェンシー">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>チャネル</label>
+        <select id="f-channel">
+          <option value="online">オンライン</option>
+          <option value="offline">オフライン</option>
+          <option value="both">オンライン＋オフライン</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>種類</label>
+        <select id="f-type">
+          <option>SNS広告</option>
+          <option>ディスプレイ広告</option>
+          <option>検索広告</option>
+          <option>動画広告</option>
+          <option>メール・メルマガ</option>
+          <option>OOH（屋外広告）</option>
+          <option>新聞・雑誌</option>
+          <option>テレビ・ラジオ</option>
+          <option>イベント・展示会</option>
+          <option>PR・プレスリリース</option>
+          <option>その他</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>目的</label>
+      <select id="f-purpose">
+        <option>認知拡大</option>
+        <option>リード獲得</option>
+        <option>販売促進</option>
+        <option>ブランディング</option>
+        <option>リテンション</option>
+        <option>その他</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>掲載地域</label>
+      <input id="f-region" type="text" placeholder="例：東京・大阪、全国">
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>掲載開始</label>
+        <input id="f-start" type="date">
+      </div>
+      <div class="form-row">
+        <label>掲載終了</label>
+        <input id="f-end" type="date">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>費用（円）</label>
+        <input id="f-cost" type="number" placeholder="例：500000">
+      </div>
+      <div class="form-row">
+        <label>出稿期限</label>
+        <input id="f-deadline" type="date">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>ビジュアル（Google Drive URL）</label>
+      <input id="f-visual" type="url" placeholder="https://drive.google.com/...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" id="btn-save" onclick="savePromo()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 設定
+// ============================================================
+let GAS_URL = localStorage.getItem('gas_url') || '';
+let promos  = [];
+let editingId = null; // idベースで管理（インデックスではなく）
+const filters = { channel: 'all', period: 'all' };
+
+// ============================================================
+// GAS接続
+// ============================================================
+function connectGAS() {
+  const url = document.getElementById('gas-url-input').value.trim();
+  if (!url.startsWith('https://script.google.com/')) {
+    showToast('GASのURLを正しく入力してください');
+    return;
+  }
+  GAS_URL = url;
+  localStorage.setItem('gas_url', GAS_URL);
+  setConnStatus('loading', '接続を確認中...');
+  loadFromSheets();
+}
+
+function dismissSetup() {
+  document.getElementById('setup-banner').style.display = 'none';
+  localStorage.setItem('setup_dismissed', '1');
+}
+
+function setConnStatus(state, msg) {
+  const dot = document.getElementById('conn-dot');
+  const msgEl = document.getElementById('conn-msg');
+  dot.className = 'status-dot';
+  if (state === 'ok')      dot.classList.add('dot-ok');
+  else if (state === 'err') dot.classList.add('dot-err');
+  else if (state === 'loading') dot.classList.add('dot-loading');
+  else dot.classList.add('dot-pending');
+  msgEl.textContent = msg;
+}
+
+// ============================================================
+// API呼び出し（JSONP方式 — CORS回避）
+// ============================================================
+function gasCall(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_cb' + Date.now() + Math.floor(Math.random() * 1000);
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      reject(new Error('タイムアウト'));
+    }, 15000);
+
+    window[cbName] = (data) => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+      resolve(data);
+    };
+
+    const qs = new URLSearchParams({ ...params, callback: cbName }).toString();
+    const script = document.createElement('script');
+    script.src = GAS_URL + '?' + qs;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      reject(new Error('スクリプト読み込みエラー'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function gasGet() {
+  return gasCall({ action: 'list' });
+}
+
+async function gasPost(body) {
+  const params = { action: body.action };
+  if (body.id)   params.id   = body.id;
+  if (body.data) params.data = JSON.stringify(body.data);
+  return gasCall(params);
+}
+
+// ============================================================
+// 日付正規化（どんな形式で来ても YYYY-MM-DD に変換）
+// ============================================================
+const DATE_FIELDS = ['start', 'end', 'deadline'];
+
+function normalizeDate(val) {
+  if (!val || val === '') return '';
+  const s = String(val).trim();
+  // すでに YYYY-MM-DD 形式ならそのまま
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // Dateとしてパース
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s;
+  // toLocaleDateString で日本時間ベースの年月日を取得
+  const parts = d.toLocaleDateString('ja-JP', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    timeZone: 'Asia/Tokyo'
+  }).split('/'); // → ["2026", "04", "15"]
+  if (parts.length === 3) {
+    return parts[0] + '-' + parts[1] + '-' + parts[2];
+  }
+  // fallback
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function normalizeDates(list) {
+  return list.map(p => {
+    const copy = { ...p };
+    DATE_FIELDS.forEach(f => { copy[f] = normalizeDate(copy[f]); });
+    return copy;
+  });
+}
+
+// ============================================================
+// データ読み込み
+// ============================================================
+async function loadFromSheets() {
+  if (!GAS_URL) return;
+  document.getElementById('btn-refresh').disabled = true;
+  setConnStatus('loading', '読み込み中...');
+  showSkeletons();
+  try {
+    const result = await gasGet();
+    if (!result.ok) throw new Error(result.error);
+    promos = normalizeDates(result.data);
+    saveLocal();
+    setConnStatus('ok', 'スプレッドシートと同期済み');
+    document.getElementById('sync-time').textContent = '最終同期: ' + new Date().toLocaleTimeString('ja-JP');
+    render();
+  } catch(e) {
+    setConnStatus('err', '接続エラー: ' + e.message);
+    showToast('読み込みに失敗しました');
+    render();
+  }
+  document.getElementById('btn-refresh').disabled = false;
+}
+
+function showSkeletons() {
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = [1,2,3].map(() => '<div class="skeleton"></div>').join('');
+}
+
+// ============================================================
+// ローカルストレージ（オフラインフォールバック）
+// ============================================================
+function saveLocal() { try { localStorage.setItem('promos_v3', JSON.stringify(promos)); } catch(e){} }
+function loadLocal()  { return JSON.parse(localStorage.getItem('promos_v3') || 'null'); }
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+function fmt(n) { return '¥' + Number(n).toLocaleString('ja-JP'); }
+function daysUntil(d) { return d ? Math.ceil((new Date(d) - new Date()) / 86400000) : null; }
+function genId() { return String(Date.now()) + String(Math.floor(Math.random()*1000)); }
+
+function periodStatus(p) {
+  if (!p.start || !p.end) return 'unknown';
+  const now = new Date(), s = new Date(p.start), e = new Date(p.end);
+  if (now < s) return 'upcoming';
+  if (now > e) return 'expired';
+  if (Math.ceil((e - now) / 86400000) <= 14) return 'ending';
+  return 'active';
+}
+
+function applyFilters(list) {
+  return list.filter(p => {
+    if (filters.channel !== 'all' && p.channel !== filters.channel) return false;
+    if (filters.period  !== 'all' && periodStatus(p) !== filters.period) return false;
+    return true;
+  });
+}
+
+function channelLabel(c) {
+  return c === 'online' ? 'オンライン' : c === 'offline' ? 'オフライン' : 'オンライン＋オフライン';
+}
+
+// ============================================================
+// レンダリング
+// ============================================================
+function render() {
+  const filtered = applyFilters(promos);
+
+  const cSfx = { all:'', online:'（オンライン）', offline:'（オフライン）', both:'（ON＋OFF）' }[filters.channel] || '';
+  const pSfx = { all:'', active:'（実施中）', ending:'（期間間近）', expired:'（期間超過）', upcoming:'（掲載前）' }[filters.period] || '';
+  const sfx = cSfx + pSfx;
+
+  document.getElementById('l-total').textContent  = '総件数' + sfx;
+  document.getElementById('l-active').textContent = '実施中' + sfx;
+  document.getElementById('l-cost').textContent   = '合計費用' + sfx;
+  document.getElementById('l-soon').textContent   = '出稿期限間近（7日以内）' + sfx;
+
+  const isRunning = p => { const s = periodStatus(p); return s === 'active' || s === 'ending'; };
+  document.getElementById('s-total').textContent  = filtered.length;
+  document.getElementById('s-active').textContent = filtered.filter(isRunning).length;
+  document.getElementById('s-cost').textContent   = fmt(filtered.reduce((a,p) => a + (Number(p.cost)||0), 0));
+  document.getElementById('s-soon').textContent   = filtered.filter(p => { const d = daysUntil(p.deadline); return d !== null && d >= 0 && d <= 7; }).length;
+
+  const grid = document.getElementById('cards-grid');
+  if (!filtered.length) { grid.innerHTML = '<div class="empty">該当するプロモーションがありません</div>'; return; }
+
+  grid.innerHTML = filtered.map(p => {
+    const ps = periodStatus(p);
+    const cardCls = ps === 'ending' ? 'promo-card card-ending' : ps === 'expired' ? 'promo-card card-expired' : 'promo-card';
+    const chBadge = `<span class="badge badge-${p.channel}">${channelLabel(p.channel)}</span>`;
+    let pBadge = '';
+    if (ps === 'ending') {
+      const d = Math.ceil((new Date(p.end) - new Date()) / 86400000);
+      pBadge = `<span class="badge badge-warn">残${d}日</span>`;
+    } else if (ps === 'expired') {
+      pBadge = `<span class="badge badge-danger">期間超過</span>`;
+    } else if (ps === 'upcoming') {
+      const d = Math.ceil((new Date(p.start) - new Date()) / 86400000);
+      pBadge = `<span class="badge badge-muted">掲載まで${d}日</span>`;
+    }
+
+    const dd = daysUntil(p.deadline);
+    let dlCls = 'dl-val', dlText = p.deadline || '—';
+    if (p.deadline) {
+      if (dd < 0)      { dlCls = 'dl-over'; dlText += '（超過）'; }
+      else if (dd===0) { dlCls = 'dl-warn'; dlText += '（本日）'; }
+      else if (dd<=7)  { dlCls = 'dl-warn'; dlText += `（残${dd}日）`; }
+    }
+
+    const visualHtml = p.visual
+      ? `<a class="visual-link" href="${p.visual}" target="_blank">📎 Drive を開く</a>`
+      : `<span style="font-size:12px;color:var(--color-text-tertiary)">未設定</span>`;
+
+    const safeId = String(p.id).replace(/'/g, "\\'");
+
+    return `<div class="${cardCls}">
+      <div class="card-top">
+        <div class="card-name">${p.name}</div>
+        <div class="badges">${chBadge}${pBadge}</div>
+      </div>
+      <div class="card-body">
+        <div class="field field-wide">
+          <div class="field-label">代理店</div>
+          <div class="field-value">${p.agency || '—'}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">種類</div>
+          <span class="tag">${p.type || '—'}</span>
+        </div>
+        <div class="field">
+          <div class="field-label">目的</div>
+          <span class="tag">${p.purpose || '—'}</span>
+        </div>
+        <div class="field">
+          <div class="field-label">掲載地域</div>
+          <div class="field-value">${p.region || '—'}</div>
+        </div>
+        <div class="field">
+          <div class="field-label">費用</div>
+          <div class="cost">${p.cost ? fmt(p.cost) : '—'}</div>
+        </div>
+        <div class="field field-wide">
+          <div class="field-label">掲載期間</div>
+          <div class="field-value" style="font-size:12px">${p.start || '—'} 〜 ${p.end || '—'}</div>
+        </div>
+        <div class="field field-wide">
+          <div class="field-label">ビジュアル</div>
+          ${visualHtml}
+        </div>
+      </div>
+      <div class="card-footer">
+        <div>
+          <span class="dl-label">出稿期限：</span><span class="${dlCls}">${dlText}</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" style="font-size:11px;padding:3px 9px" onclick="editPromo('${safeId}')">編集</button>
+          <button class="btn btn-danger" style="font-size:11px;padding:3px 9px" onclick="deletePromo('${safeId}')">削除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// フィルター
+// ============================================================
+function setFilter(group, val, el) {
+  filters[group] = val;
+  document.querySelectorAll(`[data-group="${group}"]`).forEach(c =>
+    c.classList.remove('active','active-warn','active-danger','active-success','active-info'));
+  const cls = { all:'active', active:'active-success', ending:'active-warn', expired:'active-danger', upcoming:'active-info' }[val] || 'active';
+  el.classList.add(cls);
+  render();
+}
+
+// ============================================================
+// モーダル
+// ============================================================
+function openModal(id = null) {
+  editingId = id;
+  document.getElementById('modal-title').textContent = id === null ? 'プロモーションを追加' : 'プロモーションを編集';
+  if (id !== null) {
+    const p = promos.find(x => String(x.id) === String(id));
+    if (p) {
+      document.getElementById('f-name').value     = p.name     || '';
+      document.getElementById('f-agency').value   = p.agency   || '';
+      document.getElementById('f-channel').value  = p.channel  || 'online';
+      document.getElementById('f-type').value     = p.type     || 'SNS広告';
+      document.getElementById('f-purpose').value  = p.purpose  || '認知拡大';
+      document.getElementById('f-region').value   = p.region   || '';
+      document.getElementById('f-start').value    = p.start    || '';
+      document.getElementById('f-end').value      = p.end      || '';
+      document.getElementById('f-cost').value     = p.cost     || '';
+      document.getElementById('f-deadline').value = p.deadline || '';
+      document.getElementById('f-visual').value   = p.visual   || '';
+    }
+  } else {
+    clearForm();
+  }
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); editingId = null; clearForm(); }
+function bgClick(e)   { if (e.target === document.getElementById('modal-bg')) closeModal(); }
+
+function clearForm() {
+  ['f-name','f-agency','f-region','f-start','f-end','f-cost','f-deadline','f-visual'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-channel').value = 'online';
+  document.getElementById('f-type').value    = 'SNS広告';
+  document.getElementById('f-purpose').value = '認知拡大';
+}
+
+// ============================================================
+// CRUD
+// ============================================================
+async function savePromo() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('プロモーション名を入力してください'); return; }
+  const data = {
+    name,
+    agency:   document.getElementById('f-agency').value.trim(),
+    channel:  document.getElementById('f-channel').value,
+    type:     document.getElementById('f-type').value,
+    purpose:  document.getElementById('f-purpose').value,
+    region:   document.getElementById('f-region').value.trim(),
+    start:    document.getElementById('f-start').value,
+    end:      document.getElementById('f-end').value,
+    cost:     document.getElementById('f-cost').value,
+    deadline: document.getElementById('f-deadline').value,
+    visual:   document.getElementById('f-visual').value.trim(),
+  };
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+
+  try {
+    if (editingId !== null) {
+      // 更新
+      if (GAS_URL) {
+        const res = await gasPost({ action: 'update', id: editingId, data });
+        if (!res.ok) throw new Error(res.error);
+      }
+      const idx = promos.findIndex(x => String(x.id) === String(editingId));
+      if (idx !== -1) promos[idx] = { ...data, id: editingId };
+      showToast('変更を保存しました');
+    } else {
+      // 追加
+      const newId = GAS_URL ? null : genId();
+      if (GAS_URL) {
+        const res = await gasPost({ action: 'add', data });
+        if (!res.ok) throw new Error(res.error);
+        data.id = res.id;
+      } else {
+        data.id = newId;
+      }
+      promos.push(data);
+      showToast('追加しました');
+    }
+    saveLocal();
+    closeModal();
+    render();
+  } catch(e) {
+    showToast('保存に失敗しました: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '保存';
+}
+
+function editPromo(id) { openModal(id); }
+
+async function deletePromo(id) {
+  if (!confirm('このプロモーションを削除しますか？')) return;
+  try {
+    if (GAS_URL) {
+      const res = await gasPost({ action: 'delete', id });
+      if (!res.ok) throw new Error(res.error);
+    }
+    promos = promos.filter(p => String(p.id) !== String(id));
+    saveLocal();
+    render();
+    showToast('削除しました');
+  } catch(e) {
+    showToast('削除に失敗しました: ' + e.message);
+  }
+}
+
+// ============================================================
+// Toast
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ============================================================
+// CSV
+// ============================================================
+const CSV_HEADERS = ['id','name','agency','channel','type','purpose','region','start','end','cost','deadline','visual'];
+const CSV_LABELS  = ['ID','プロモーション名','代理店','チャネル','種類','目的','掲載地域','掲載開始','掲載終了','費用','出稿期限','ビジュアルURL'];
+
+function exportCSV() {
+  const esc = v => { const s=String(v??''); return (s.includes(',')||s.includes('"')||s.includes('\n'))?`"${s.replace(/"/g,'""')}"`:s; };
+  const rows = [CSV_LABELS.join(',')];
+  promos.forEach(p => rows.push(CSV_HEADERS.map(k => esc(p[k]??'')).join(',')));
+  const blob = new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'promotions_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  showToast('CSVを書き出しました');
+}
+
+function parseCSVLine(line) {
+  const res=[]; let cur='', inQ=false;
+  for (let i=0;i<line.length;i++) {
+    const c=line[i];
+    if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(c===','&&!inQ){res.push(cur);cur='';}
+    else cur+=c;
+  }
+  res.push(cur); return res;
+}
+
+async function importCSV(input) {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try {
+      let text=e.target.result;
+      if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+      const lines=text.split(/\r?\n/).filter(l=>l.trim());
+      if(lines.length<2){showToast('データ行がありません');return;}
+      const header=parseCSVLine(lines[0]).map(h=>h.trim());
+      const keyMap={};
+      header.forEach((h,i)=>{
+        const ki=CSV_LABELS.indexOf(h);
+        if(ki!==-1) keyMap[i]=CSV_HEADERS[ki];
+        else{const ki2=CSV_HEADERS.indexOf(h);if(ki2!==-1)keyMap[i]=CSV_HEADERS[ki2];}
+      });
+      const imported=[];
+      for(let r=1;r<lines.length;r++){
+        const cols=parseCSVLine(lines[r]); const obj={};
+        cols.forEach((v,i)=>{if(keyMap[i])obj[keyMap[i]]=v.trim();});
+        if(!obj.id) obj.id = genId();
+        if(obj.name) imported.push(obj);
+      }
+      if(!imported.length){showToast('有効なデータが見つかりませんでした');return;}
+      if(!confirm(`${imported.length}件のデータを読み込みます。現在のデータは上書きされます。よろしいですか？`)){return;}
+
+      if (GAS_URL) {
+        showToast('スプレッドシートに書き込み中...');
+        const res = await gasPost({ action: 'bulkSet', data: imported });
+        if (!res.ok) throw new Error(res.error);
+      }
+      promos = imported; saveLocal(); render();
+      showToast(`${imported.length}件を読み込みました`);
+    } catch(err){showToast('CSVの読み込みに失敗しました: '+err.message);}
+    input.value='';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+// ============================================================
+// 初期化
+// ============================================================
+(function init() {
+  // セットアップバナーの表示制御
+  if (GAS_URL) {
+    document.getElementById('gas-url-input').value = GAS_URL;
+  }
+  if (localStorage.getItem('setup_dismissed') === '1' && !GAS_URL) {
+    document.getElementById('setup-banner').style.display = 'none';
+  }
+
+  // ローカルキャッシュを先に表示（日付も正規化）
+  const cached = loadLocal();
+  if (cached) { promos = normalizeDates(cached); render(); }
+
+  // GASが設定済みなら同期
+  if (GAS_URL) {
+    loadFromSheets();
+  } else {
+    setConnStatus('pending', '未接続 — ローカルストレージで動作中');
+    if (!cached) render();
+  }
+})();
+</script>
+</body>
+</html>
+">
   <style type="text/css">
     body {background-color: #eae7e0}
     p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 15.0px 'Hiragino Sans'; color: #154a94; -webkit-text-stroke: #154a94}
